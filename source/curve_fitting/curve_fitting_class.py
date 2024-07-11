@@ -1,23 +1,3 @@
-<<<<<<< HEAD
-from grad_shafranov_class import GS_Solution
-import numpy as np
-import scipy.optimize as opt
-import matplotlib.pyplot as plt
-from scipy import integrate
-
-
-class curve_fitter:
-    def __init__(self, R0=0, p_eps=0, p_kappa=0, p_delta=0, p_A=0, qaxis=0, p0=0, formfactor=None,
-                 solverClass=GS_Solution):
-        if formfactor is None:
-            self.Profile_solver = solverClass(R0=R0, p_eps=p_eps, p_kappa=p_kappa, p_delta=p_delta, p_A=p_A,
-                                              qaxis=qaxis,
-                                              p0=p0)
-        else:
-            self.Profile_solver = solverClass(formfactor=formfactor)
-
-        self.parametric_curve = 0
-=======
 import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
@@ -29,7 +9,6 @@ class curve_fitter:
         self.unsymm=unsymm
 
         
->>>>>>> iota_without_s_derivative
 
     def eval_1d_fourier(self, t, coef_c=[], coef_s=[]):
         '''Evaluates cosine/sine series, first coef_c is mode m=0, of coef_s is mode m=1'''
@@ -37,10 +16,6 @@ class curve_fitter:
         for m in range(0, len(coef_c)):
             x += coef_c[m] * np.cos(m * t * 2 * np.pi)
         for m in range(0, len(coef_s)):
-<<<<<<< HEAD
-            x += coef_s[m] * np.sin((m + 1) * t * 2 * np.pi)
-        return x
-=======
             x += coef_s[m] * np.sin((m) * t * 2 * np.pi)
         return x
     
@@ -59,7 +34,6 @@ class curve_fitter:
         
         
         
->>>>>>> iota_without_s_derivative
 
     def eval_1d_fourier_dt(self, t, coef_c=[], coef_s=[]):
         '''Evaluates first derivative of cosine/sine series, first coef_c is mode m=0, of coef_s is mode m=1'''
@@ -67,13 +41,6 @@ class curve_fitter:
         for m in range(0, len(coef_c)):
             dxdt += -m * 2 * np.pi * coef_c[m] * np.sin(m * t * 2 * np.pi)
         for m in range(0, len(coef_s)):
-<<<<<<< HEAD
-            dxdt += (m + 1) * 2 * np.pi * coef_s[m] * np.cos((m + 1) * t * 2 * np.pi)
-
-        return dxdt
-
-    def eval_curve(self, x, xmap, N, thet_offset=0.):
-=======
             dxdt += (m) * 2 * np.pi * coef_s[m] * np.cos((m) * t * 2 * np.pi)
 
         return dxdt
@@ -93,18 +60,13 @@ class curve_fitter:
     
 
     def eval_curve(self, x, xmap, N=100, thet_offset=0., thet=None):
->>>>>>> iota_without_s_derivative
         '''
         Evaluates r,z of the curve defined by fourier coefficients
         rcoef_c/s and zcoef_c/s , at N points. coefficients are mapped from 1d array x, using xmap dict.
         '''
-<<<<<<< HEAD
-        thet = np.linspace(0. + thet_offset, 1. + thet_offset, N, endpoint=False)
-=======
         if thet is None:
             thet = np.linspace(0. + thet_offset, 1. + thet_offset, N, endpoint=False)
         
->>>>>>> iota_without_s_derivative
         # thet=thet+0.5*(thet[1]-thet[0]) #shift by 1/2 dx
         rr = self.eval_1d_fourier(thet,
                                   coef_c=x[xmap["str_r_c"]:xmap["str_r_c"] + xmap["nr_c"]],
@@ -115,10 +77,6 @@ class curve_fitter:
                                   coef_s=x[xmap["str_z_s"]:xmap["str_z_s"] + xmap["nz_s"]])
 
         return rr, zz
-<<<<<<< HEAD
-
-    def eval_curve_dt(self, x, xmap, N, thet_offset=0.):
-=======
     
     
     def eval_curve_coefficient_gradient(self, x, xmap, N=100, thet_offset=0., thet=None):
@@ -139,19 +97,14 @@ class curve_fitter:
         
 
     def eval_curve_dt(self, x, xmap, N=100, thet_offset=0., thet=None):
->>>>>>> iota_without_s_derivative
         '''
         Evaluates r,z of the curve defined by fourier coefficients
         rcoef_c/s and zcoef_c/s , at N points. coefficients are mapped from 1d array x, using xmap dict.
         '''
-<<<<<<< HEAD
-        thet = np.linspace(0. + thet_offset, 1. + thet_offset, N, endpoint=False)
-=======
         
         if thet is None:
             thet = np.linspace(0. + thet_offset, 1. + thet_offset, N, endpoint=False)
         
->>>>>>> iota_without_s_derivative
         # thet=thet+0.5*(thet[1]-thet[0]) #shift by 1/2 dx
         dr_dt = self.eval_1d_fourier_dt(thet,
                                         coef_c=x[xmap["str_r_c"]:xmap["str_r_c"] + xmap["nr_c"]],
@@ -161,27 +114,6 @@ class curve_fitter:
                                         coef_c=x[xmap["str_z_c"]:xmap["str_z_c"] + xmap["nz_c"]],
                                         coef_s=x[xmap["str_z_s"]:xmap["str_z_s"] + xmap["nz_s"]])
         return dr_dt, dz_dt
-<<<<<<< HEAD
-
-    def eval_curve_normal(self, x, xmap, N, **kwargs):
-        dr_dt, dz_dt = self.eval_curve_dt(x, xmap, N, **kwargs)
-        nn = np.sqrt(dr_dt ** 2 + dz_dt ** 2)
-        return dz_dt / nn, -dr_dt / nn  # n_r,n_z
-
-    def psidiff(self, x_in, xmap, psi_goal, N):
-        '''
-        function for the minimizer: evaluate psi on the curve and
-        return the squared normalized difference to psi_goal
-        '''
-        rr, zz = self.eval_curve(x_in, xmap, N)
-        psi_curve = self.Profile_solver.eval_psi(rr, zz)
-        return (psi_curve - psi_goal) ** 2 / (psi_goal ** 2)
-
-    def BdotN(self, x_in, xmap, N):
-        # weird format ask pls
-        rr, zz = self.eval_curve(x_in, xmap, N)
-        Bpol_r, Bpol_z = self.Profile_solver.eval_Bpol(rr, zz)
-=======
     
     
     def eval_curve_dt_coefficient_gradient(self, x, xmap, N=100, thet_offset=0., thet=None):
@@ -241,20 +173,12 @@ class curve_fitter:
         '''
         rr, zz = self.eval_curve(x_in, xmap, N)
         Bpol_r, Bpol_z = self.flux_function.eval_Bpol(rr, zz)
->>>>>>> iota_without_s_derivative
 
         dr_dt, dz_dt = self.eval_curve_dt(x_in, xmap, N)
 
         n_r = -dz_dt
         n_z = dr_dt
         return (n_r * Bpol_r + n_z * Bpol_z) ** 2 / ((Bpol_r ** 2 + Bpol_z ** 2) * (n_r ** 2 + n_z ** 2))
-<<<<<<< HEAD
-
-    def eval_curve_normal(self, x, xmap, N, **kwargs):
-        dr_dt, dz_dt = self.eval_curve_dt(x, xmap, N, **kwargs)
-        nn = np.sqrt(dr_dt ** 2 + dz_dt ** 2)
-        return dz_dt / nn, -dr_dt / nn  # n_r,n_z
-=======
     
     
     def BdotN_coeff_gradient(self, x_in, xmap, N):
@@ -296,21 +220,10 @@ class curve_fitter:
 
         return (ds_dR * dR_dt + ds_dZ * dZ_dt) ** 2 / (( ds_dR** 2 + ds_dZ ** 2) * (dR_dt ** 2 + dZ_dt ** 2))
 
->>>>>>> iota_without_s_derivative
 
     def Mscale(self, x_in, xmap, p=1, q=1):
 
         return np.sum(xmap["m"] ** (p + q) * x_in ** 2) / np.sum(xmap["m"] ** (p) * x_in ** 2)
-<<<<<<< HEAD
-
-    def minf(self, x_in, xmap, psi_goal, N):
-        '''
-        function for the minimizer:
-        '''
-        # return 0.5*np.sum(psidiff(x_in,xmap,psi_goal,N))/N
-        return 0.5 * np.sum(self.psidiff(x_in, xmap, psi_goal, N)) / N + 0.5 * np.sum(
-            self.BdotN(x_in, xmap, N)) / N  # <==== add normal condition
-=======
     
     def Mscale_grad(self, x_in, xmap, p=1, q=1):
         u =np.sum(xmap["m"] ** (p + q) * x_in ** 2)
@@ -340,18 +253,12 @@ class curve_fitter:
         return (1-Mscale_factor)*(np.sum(self.S_diff_coeff_gradient(x_in, xmap, s_goal, N),1))/N + Mscale_factor*self.Mscale_grad(x_in, xmap,p=p) + np.sum(self.BdotN_coeff_gradient(x_in, xmap, N),1)/N
     
     
->>>>>>> iota_without_s_derivative
 
     # def minf_LS(x_in,xmap,psi_goal,N):
     #    return psidiff(x_in,xmap,psi_goal,N) + BdotN(x_in,xmap,N)
 
-<<<<<<< HEAD
-    def minf_point(self, x, psi_goal):
-        return 0.5 * (self.Profile_solver.eval_psi(x[0], x[1]) - psi_goal) ** 2 / (psi_goal ** 2)
-=======
     def minf_point(self, x, s_goal):
         return 0.5 * (self.flux_function.eval_s(x[0], x[1]) - s_goal) ** 2 
->>>>>>> iota_without_s_derivative
 
     def eval_line(self, a, xp, xs):
         return [xp[0] + a * xs[0], xp[1] + a * xs[1]]
@@ -359,15 +266,9 @@ class curve_fitter:
     def minf_line(self, a, xp, xs, psi_goal):
         return self.minf_point(self.eval_line(a, xp, xs), psi_goal)
 
-<<<<<<< HEAD
-    def psi_line(self, a, xp, xs, psi_goal):
-        x = self.eval_line(a, xp, xs)
-        return self.Profile_solver.eval_psi(x[0], x[1]) - psi_goal
-=======
     def S_line(self, a, xp, xs, s_goal):
         x = self.eval_line(a, xp, xs)
         return self.flux_function.eval_s(x[0], x[1]) - s_goal
->>>>>>> iota_without_s_derivative
 
     def point_distance(self, x_in, xmap, N, rr_ref, zz_ref):
         rr, zz = self.eval_curve(x_in, xmap, N)
@@ -375,10 +276,6 @@ class curve_fitter:
 
     def minf_dist(self, x_in, xmap, N, rr_ref, zz_ref):
         return 0.5 * np.sum(self.point_distance(x_in, xmap, N, rr_ref, zz_ref)) / N
-<<<<<<< HEAD
-
-    def find_flux_surface(self, r_fs=3.15, z_fs=0., m_max_start=4, m_max_end=6, **kwargs):
-=======
     
     
     def find_bounding_box(self, s_fs):
@@ -422,7 +319,6 @@ class curve_fitter:
         
 
     def find_flux_surface(self, r_fs=None, z_fs=None, s_fs=None, m_max_start=4, m_max_end=6, **kwargs):
->>>>>>> iota_without_s_derivative
         '''
         Main function to find a closed flux surface (with parametrization of the angle!) of the coil+plasma field.
         Visualization helps if default parameters would change.
@@ -433,69 +329,6 @@ class curve_fitter:
         '''
         from scipy.optimize import minimize
         from scipy.optimize import root
-<<<<<<< HEAD
-
-        R, Z = self.Profile_solver.get_RZ_grid(gridPoints=150)
-        psi = self.Profile_solver.eval_psi(R, Z)
-
-        # select flux surface going through the point:
-
-        psi_fs = self.Profile_solver.eval_psi(r_fs, z_fs)
-
-        fig, ax = plt.subplots(figsize=(10, 10))
-
-        im = ax.contourf(R, Z, psi, 40, cmap='jet', alpha=0.4)
-        ax.contour(R, Z, psi, 40, cmap='jet')
-
-        ax.contour(R, Z, psi, [psi_fs], colors='k', linewidths=2., linestyles='solid')
-
-        # get the contour object
-        fs = ax.contour(R, Z, psi, [psi_fs])
-
-        fs_list = fs.collections[0].get_paths()
-        # Sort the paths by its length. Assume main one is the longest(?)
-        fs_list.sort(key=len, reverse=True)
-
-        fs_coord = fs_list[0].vertices
-        fs_r = fs_coord[:, 0]
-        fs_z = fs_coord[:, 1]
-
-        idx_left = np.argmin(fs_r[:])
-        idx_right = np.argmax(fs_r[:])
-        idx_lower = np.argmin(fs_z[:])
-        idx_upper = np.argmax(fs_z[:])
-
-        # print ("bound. box, left (%f,%f),right (%f,%f),lower (%f,%f),upper (%f,%f)" % (fs_r[idx_left],fs_z[idx_left],fs_r[idx_right],fs_z[idx_right],fs_r[idx_lower],fs_z[idx_lower],fs_r[idx_upper],fs_z[idx_upper]))
-        # ax.plot(fs_r[0:-1:10],fs_z[0:-1:10],'bx')
-
-        psi_back = self.Profile_solver.eval_psi(fs_r, fs_z)
-
-        print("psi_fs %e, max abs (psi_contour-psi_fs)= %e" % (psi_fs, np.amax(np.abs(psi_back - psi_fs))))
-
-        # testing minimizer with one point:
-        x0_point = [3.5, 1.2]
-        diff_psi = self.minf_point(x0_point, psi_fs)
-        print("psi_fs %e, initial residual,sqrt||(psi_point-psi_fs)^2/psi_fs^2||= %e " % (psi_fs, np.sqrt(diff_psi)))
-
-        res_point = minimize(self.minf_point, x0_point, args=(psi_fs), tol=1.0e-16)
-
-        print("message minimizer_point: " + res_point.message)
-        diff_psi = self.minf_point(res_point.x, psi_fs)
-        print("psi_fs %e, final residual,sqrt||(psi_point-psi_fs)^2/psi_fs^2||= %e " % (psi_fs, np.sqrt(diff_psi)))
-        print("final diff_psi |psi_point-psi_fs|= %e " % (np.sqrt(2 * psi_fs ** 2 * diff_psi)))
-        # plt.plot([x0_point[0],res_point.x[0]],[x0_point[1],res_point.x[1]],'ro')
-
-        # testing minimizer with point along line:
-        x0_a = 0.1;
-        xp = [3.5, 1.2];
-        xs = [1, -0.5]
-        diff_psi = self.minf_line(x0_a, xp, xs, psi_fs)
-        print("psi_fs %e, initial residual,sqrt||(psi_line-psi_fs)^2/psi_fs^2||= %e " % (psi_fs, np.sqrt(diff_psi)))
-        res_line = minimize(self.minf_line, x0_a, args=(xp, xs, psi_fs), tol=1.0e-16)
-        print("message minimizer_line: " + res_line.message)
-        diff_psi = self.minf_line(res_line.x, xp, xs, psi_fs)
-        print("psi_fs %e, final residual,sqrt||(psi_line-psi_fs)^2/psi_fs^2||= %e " % (psi_fs, np.sqrt(diff_psi)))
-=======
         from scipy.optimize import LinearConstraint
 
         # select flux surface going through the point:
@@ -531,20 +364,10 @@ class curve_fitter:
         # print("message minimizer_line: " + res_line.message)
         # diff_psi = self.minf_line(res_line.x, xp, xs, psi_fs)
         # print("psi_fs %e, final residual,sqrt||(psi_line-psi_fs)^2/psi_fs^2||= %e " % (psi_fs, np.sqrt(diff_psi)))
->>>>>>> iota_without_s_derivative
 
         #################
         # find the contour parametrization
         #################
-<<<<<<< HEAD
-        all_results = {}
-        unsymm = True
-        for m_max in range(m_max_start, m_max_end + 1):
-            print("=====m_max= %d ====== " % (m_max))
-            rcoef_c0 = np.zeros(m_max + 1)
-            if (unsymm):
-                rcoef_s0 = np.zeros(m_max)  # unsymmetric
-=======
         #all_results = {}
         xmap=0
         x_out=0
@@ -554,52 +377,16 @@ class curve_fitter:
             rcoef_c0 = np.zeros(m_max + 1)
             if (self.unsymm):
                 rcoef_s0 = np.zeros(m_max+1)  # unsymmetric
->>>>>>> iota_without_s_derivative
                 zcoef_c0 = np.zeros(m_max + 1)  # unsymmetric
             else:
                 rcoef_s0 = []  # up-down symmetric
                 zcoef_c0 = []  # up-down symmetric
-<<<<<<< HEAD
-            zcoef_s0 = np.zeros(m_max)
-=======
             zcoef_s0 = np.zeros(m_max+1)
->>>>>>> iota_without_s_derivative
 
             # first initialization:
             # initialize  up-down symmetric curve inside bounding box of contour
             if (m_max == m_max_start):
                 # rcoef_c0[2]=0.1 #m=2
-<<<<<<< HEAD
-                rcoef_c0[1] = 0.4 * (fs_r[idx_right] - fs_r[idx_left])  # m=1
-                rcoef_c0[0] = 0.5 * (fs_r[idx_right] + fs_r[idx_left])  # - rcoef_c0[2] # m=0
-                zcoef_s0[0] = 0.4 * (fs_z[idx_upper] - fs_z[idx_lower])  # m=1
-                zcoef_c0[0] = 0.5 * (fs_z[idx_upper] + fs_z[idx_lower])
-                # zcoef_s0[1]=-0.1 #m=2
-            # use previous solution
-            else:
-                rcoef_c0[0:m_max] = res.x[xmap["str_r_c"]:xmap["str_r_c"] + xmap["nr_c"]]
-                if (unsymm):
-                    rcoef_s0[0:m_max - 1] = res.x[xmap["str_r_s"]:xmap["str_r_s"] + xmap["nr_s"]]
-                    zcoef_c0[0:m_max] = res.x[xmap["str_z_c"]:xmap["str_z_c"] + xmap["nz_c"]]
-                zcoef_s0[0:m_max - 1] = res.x[xmap["str_z_s"]:xmap["str_z_s"] + xmap["nz_s"]]
-
-            # BUILD 1D solution vector x0
-            x0 = np.concatenate((rcoef_c0, rcoef_s0, zcoef_c0, zcoef_s0))
-            xmap = {}
-            xmap["nr_c"] = len(rcoef_c0)
-            xmap["nr_s"] = len(rcoef_s0)
-            xmap["nz_c"] = len(zcoef_c0)
-            xmap["nz_s"] = len(zcoef_s0)
-            xmap["str_r_c"] = 0
-            xmap["str_r_s"] = 0 + xmap["nr_c"]
-            xmap["str_z_c"] = xmap["str_r_s"] + xmap["nr_s"]
-            xmap["str_z_s"] = xmap["str_z_c"] + xmap["nz_c"]
-            # mode number
-            xmap["m"] = np.concatenate((np.arange(0, xmap["nr_c"]),
-                                        np.arange(0, xmap["nr_s"]) + 1,
-                                        np.arange(0, xmap["nz_c"]),
-                                        np.arange(0, xmap["nz_s"]) + 1))
-=======
                 rcoef_c0[1] = 0.4 * (idx_right - idx_left)  # m=1
                 rcoef_c0[0] = 0.5 * (idx_right + idx_left)  # - rcoef_c0[2] # m=0
                 zcoef_s0[1] = 0.4 * (idx_upper - idx_lower)  # m=1
@@ -618,7 +405,6 @@ class curve_fitter:
             # BUILD 1D solution vector x0
             x0 = np.concatenate((rcoef_c0, rcoef_s0, zcoef_c0, zcoef_s0))
             xmap = self.build_xmap(len(rcoef_c0), len(rcoef_s0), len(zcoef_c0), len(zcoef_s0))
->>>>>>> iota_without_s_derivative
 
             # number of points for evaluating the "distance" in psi on the curve
             N = 1 + 4 * m_max  # add another +1 if theta starts at 1/2*dx
@@ -628,13 +414,6 @@ class curve_fitter:
 
             # plt.plot(rr,zz,'r.')
 
-<<<<<<< HEAD
-            diff_psi = self.minf(x0, xmap, psi_fs, N_post)
-            print("psi_fs %e, initial residual= %e " % (psi_fs, diff_psi))
-
-            res = minimize(self.minf, x0, args=(xmap, psi_fs, N), tol=1.0e-10)
-            print("message minimizer: " + res.message)
-=======
             diff_s = self.minf(x0, xmap, s_fs, N_post)
             #print("psi_fs %e, initial residual= %e " % (psi_fs, diff_psi))
             A=np.zeros((2,len(x0)))
@@ -644,7 +423,6 @@ class curve_fitter:
             "constraints=constraint,"
             res = minimize(self.minf, x0, args=(xmap, s_fs, N), tol=1.0e-14, constraints=constraint, jac=self.minf_gradient)
             #print("message minimizer: " + res.message)
->>>>>>> iota_without_s_derivative
             x_out = res.x
 
             # res_LS=least_squares(minf_LS, x0, args=(xmap,psi_fs,N))
@@ -669,23 +447,6 @@ class curve_fitter:
 
             # post-processing
 
-<<<<<<< HEAD
-            diff_psi = self.minf(x_out, xmap, psi_fs, N_post)
-            print("psi_fs %e, final residual = %e " % (psi_fs, diff_psi))
-
-            rr, zz = self.eval_curve(x_out, xmap, N_post)
-            psi_back = self.Profile_solver.eval_psi(rr, zz)
-            print("psi_fs %e, min/max (psi_fit-psi_fs)= %e %e" % (
-                psi_fs, np.amin(psi_back - psi_fs), np.amax(psi_back - psi_fs)))
-
-            print("maximum error in |B.n|/|B|= %e" % (np.amax(np.abs(np.sqrt(self.BdotN(x_out, xmap, N_post))))))
-            print("Mscale(p=1/2/4)= %f %f %f" % (
-                self.Mscale(x_out, xmap, p=1), self.Mscale(x_out, xmap, p=2), self.Mscale(x_out, xmap, p=4)))
-
-            # add result
-            which_m = ("m_max=%d" % (xmap["nz_s"]))
-            all_results[which_m] = {"x_final": x_out, "xmap": xmap}
-=======
             diff_s = self.minf(x_out, xmap, s_fs, N_post)
             #print("s_fs %e, final residual = %e " % (s_fs, diff_s))
 
@@ -701,7 +462,6 @@ class curve_fitter:
             # add result
             #which_m = ("m_max=%d" % (xmap["nz_s"]))
             #all_results[which_m] = {"x_final": x_out, "xmap": xmap}
->>>>>>> iota_without_s_derivative
         # visualize result
         # # rr, zz = self.eval_curve(x_out, xmap, 50)
         # plt.plot(rr, zz, 'bo')
@@ -720,12 +480,6 @@ class curve_fitter:
         # fig.colorbar(im)
         # ax.axis("equal")
         # plt.show()
-<<<<<<< HEAD
-
-        return psi_fs, all_results
-
-    def get_curve(self, psi_fs, x_final_in, xmap_in, Np_in, rzcorr_in, thet_offset=0):
-=======
         # print("psi_fs %e, min/max (psi_fit-psi_fs)= %e %e" % (
         #       psi_fs, np.amin(psi_back - psi_fs), np.amax(psi_back - psi_fs)))
 
@@ -740,7 +494,6 @@ class curve_fitter:
         takes points from the curve, and perfofmrs a root search along the line normal to the curve.
         This is to incrase the accuary of the parametrisation
         '''
->>>>>>> iota_without_s_derivative
         from scipy.optimize import root
         rr, zz = self.eval_curve(x_final_in, xmap_in, Np_in, thet_offset=thet_offset)
         if rzcorr_in == 1:
@@ -751,46 +504,11 @@ class curve_fitter:
                 x0_a = 0.
                 xp = [rr_ref[i], zz_ref[i]]
                 xs = [nr_ref[i], nz_ref[i]]
-<<<<<<< HEAD
-                res_line = root(self.psi_line, x0_a, args=(xp, xs, psi_fs), tol=1.0e-19)
-=======
                 res_line = root(self.S_line, x0_a, args=(xp, xs, s_fs), tol=1.0e-19)
->>>>>>> iota_without_s_derivative
                 rr[i], zz[i] = self.eval_line(res_line.x, xp, xs)
         return rr, zz
     
     
-<<<<<<< HEAD
-    def final_fourier_coefficients(self, N_points, m_max_end, rr, zz):
-        r_c,r_s,z_c,z_s = [],[],[],[]
-        r0,z0 = self.fourier_integrate(rr,zz,0)
-        r_c.append(r0)
-        z_c.append(z0)
-        # for i in range():
-        
-         
-    
-    
-    def fourier_integrate(self,rr,zz,m):
-        exp = lambda M, t: np.exp(complex(0,1)*t*M*2*np.pi)
-        
-        x = np.linspace(0,1,len(rr), endpoint=False)
-        RR = exp(m,x)*rr
-        ZZ = exp(m,x) * zz
-        
-        Integral_rr = integrate.cumtrapz(x=x, y=RR, initial=0)
-        Integral_zz = integrate.cumtrapz(x=x, y=ZZ, initial=0)
-        
-        
-        if m == 0:
-            cr_m = Integral_rr
-            cz_m = Integral_zz
-            return np.real(cr_m), np.real(cz_m)
-        else:
-            cr_m = 2*Integral_rr
-            cz_m = 2*Integral_zz
-            return np.real(cr_m), np.imag(cr_m), np.real(cz_m), np.imag(cz_m)
-=======
     def inverse_fourier_tranform(self,m_max_end, rr, zz):
         '''
         performes inverse fourier transform of a given array of (rr,zz)points 
@@ -869,7 +587,6 @@ class curve_fitter:
         
         return xmap
             
->>>>>>> iota_without_s_derivative
             
             
         

@@ -4,12 +4,7 @@ import scipy.optimize as opt
 
 
 class GS_Solution:
-<<<<<<< HEAD
-
-    def __init__(self, R0=0, p_eps=0, p_kappa=0, p_delta=0, p_A=0, qaxis=0, p0=0, formfactor=None):
-=======
     def __init__(self, R0=0, p_eps=0, p_kappa=0, p_delta=0, p_A=0, qaxis=0, p0=0, formfactor=None, B0=1., psi_fs_last =0.):
->>>>>>> iota_without_s_derivative
         if formfactor is None:
             self.R0, self.p_eps, self.p_kappa, self.p_delta, self.p_A, self.qaxis, self.p0 = [R0, p_eps, p_kappa,
                                                                                               p_delta, p_A, qaxis, p0]
@@ -18,29 +13,15 @@ class GS_Solution:
                 "circular shaped tokamak": [5.0, 0.2, 1.0, 0.0, 0.0, 1.6, 0.02],
                 "ITER from Cerfon": [6.2, 0.32, 1.7, 0.33, -0.155, 1.6, 0.08],
                 "spherical tokamak NSTX": [1, 0.78, 2, 0.35, 0.0, 1.1, 0.001],
-<<<<<<< HEAD
-                "Dshape": [5.0, 0.32, 1.7, 0.0, 0.0, 1.6, 0.08]
-            }
-            self.R0, self.p_eps, self.p_kappa, self.p_delta, self.p_A, self.qaxis, self.p0 = dictionary[formfactor]
-
-=======
                 "Dshape": [5.0, 0.32, 1.7, 0.33, -0.1, 1.6, 0.08]
             }
             self.R0, self.p_eps, self.p_kappa, self.p_delta, self.p_A, self.qaxis, self.p0 = dictionary[formfactor]
         
         self.psi_fs_last = psi_fs_last
->>>>>>> iota_without_s_derivative
         self.psi_profile = 0
         self.psi_function = 0
         self.DelPsiExpression = 0
         self.DelPsiFunc = 0
-<<<<<<< HEAD
-        self.profile_solver()
-
-    def profile_solver(self):
-        # defining sympy symbols
-        x, y = symbols('x, y', real=True)
-=======
         self.Del2PsiFunc = 0
         self.B0 = B0
         self.F0 =0.
@@ -66,7 +47,6 @@ class GS_Solution:
         # defining sympy symbols
         x = symbols('x', real=True,positive=True)
         y = symbols('y', real=True)
->>>>>>> iota_without_s_derivative
         eps, kappa, delta = symbols('epsilon, kappa, delta', real=True, positive=True)
         A = symbols('A', real=True)
         c1, c2, c3, c4, c5, c6, c7 = symbols('c1, c2, c3, c4, c5, c6, c7', real=True)
@@ -134,26 +114,6 @@ class GS_Solution:
         self.DelPsiExpression = np.array([self.psi_profile.diff(x), self.psi_profile.diff(y)])
         self.DelPsiFunc = [lambdify((x, y), self.psi_profile.diff(x), "numpy"),
                            lambdify((x, y), self.psi_profile.diff(y), "numpy")]
-<<<<<<< HEAD
-        return 1
-
-    def eval_psi(self, R, Z):
-        X, Y = [R / self.R0, Z / self.R0]
-        return self.psi_function(X, Y)
-
-    def get_RZ_grid(self, gridPoints, Rlim=0, Zlim=0, h_RZ=0):
-        if Rlim == 0 or Zlim == 0 or h_RZ == 0:
-            dd = 1.7 * self.p_eps * self.p_kappa * self.R0
-            R = np.linspace(max(self.R0 - dd, 10 ** -2), self.R0 + dd, gridPoints)
-            Z = np.linspace(-1.3 * dd, +1.3 * dd, gridPoints)
-            """print("Rlim : ", self.Profile_solver.R0 - dd, " Rlim: ", self.Profile_solver.R0 + dd)
-            print("Zlim: ", -dd, +dd)"""
-            Rgrid, Zgrid = np.meshgrid(R, Z)
-            return Rgrid, Zgrid
-        else:
-            Nr = int((Rlim[1] - Rlim[0]) / h_RZ)
-            Nz = int((Zlim[1] - Zlim[0]) / h_RZ)
-=======
         
         self.Del2PsiFunc =[lambdify((x, y), self.psi_profile.diff(x).diff(x), "numpy"),
                            lambdify((x, y), self.psi_profile.diff(y).diff(y), "numpy"),
@@ -294,30 +254,12 @@ class GS_Solution:
         else:
             Nr = gridPoints
             Nz = int((Zlim[1] - Zlim[0]) / (Rlim[1]-Rlim[0]))*Nr
->>>>>>> iota_without_s_derivative
             r = np.linspace(Rlim[0], Rlim[1], Nr)
             z = np.linspace(Zlim[0], Zlim[1], Nz)
             R, Z = np.meshgrid(r, z)
             return R, Z
 
     def eval_del_psi(self, R, Z):
-<<<<<<< HEAD
-        dspi_dx, dspi_dy = self.DelPsiFunc
-        X, Y = [R / self.R0, Z / self.R0]
-        dspi_dR, dpsi_dZ = [dspi_dx(X, Y) / self.R0, dspi_dy(X, Y) / self.R0]
-        return dspi_dR, dpsi_dZ
-
-    def mid_poit_finder(self):
-        sol = opt.minimize(fun=self.mid_point_psi_dummy_func, x0=[self.R0, 0])
-        return sol.x
-
-    def mid_point_psi_dummy_func(self, X):
-        return self.eval_psi(X[0], X[1])
-
-    def eval_Bpol(self, R, Z):
-        dpsi_dr, dpsi_dz = self.eval_del_psi(R, Z)
-        return -dpsi_dz / self.R0, dpsi_dr / self.R0
-=======
         '''
         evaluates gradient of psi function
         
@@ -421,4 +363,3 @@ class GS_Solution:
     
     
     
->>>>>>> iota_without_s_derivative
