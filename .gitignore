@@ -157,8 +157,7 @@ cython_debug/
 .vscode/
 __pyccel__/
 ParaView/
-<<<<<<< HEAD
-=======
+
 get-pip.py
 plots_pdfs
->>>>>>> iota_without_s_derivative
+
